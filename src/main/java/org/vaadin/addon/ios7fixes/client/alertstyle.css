@@ -1,0 +1,15 @@
+@def basicBorder 1px solid gray;
+.gwt-DialogBox { 
+	background: white;
+	border: basicBorder;
+	border-radius: 10px;
+	padding:30px;
+	margin:30px;
+}
+.gwt-DialogBox .Caption {
+	border-bottom: basicBorder;	
+}
+.gwt-DialogBox .dialogContent { 
+	margin-top:10px;
+}
+

@@ -1,0 +1,5 @@
+<module>
+	<entry-point
+		class="org.vaadin.addon.ios7fixes.client.Ios7HackLoader" />
+
+</module>
