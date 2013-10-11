@@ -133,6 +133,7 @@
 		<gpg.skip>true</gpg.skip>
 		<snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
 
+		<Implementation-Title>${project.name}</Implementation-Title>
 		<Implementation-Version>${project.version}</Implementation-Version>
 		<Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
 		<Vaadin-Addon>ios7hotfixes-${project.version}.jar</Vaadin-Addon>
