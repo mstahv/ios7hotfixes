@@ -13,8 +13,8 @@ import com.google.gwt.user.client.Window.Navigator;
 
 public class Ios7HackLoader implements EntryPoint {
 
-    private int bootWidth;
-    private int bootHeight;
+    private Integer bootWidth;
+    private Integer bootHeight;
 
     public void onModuleLoad() {
 
@@ -28,7 +28,52 @@ public class Ios7HackLoader implements EntryPoint {
          * At least currently this tool only fixes stuff for thos apps.
          */
         if (isiOS7HomeScreenApp()) {
+            // Defer setting "boot values", else may be something weird in iphone
+            // when app is started in landscape mode
+            new Timer() {
+                @Override
+                public void run() {
+                    initSizeIfNeeded();
+                    /* "Somewhat" working viewport settings */
+                    addHeightToViewPort();
+                    
+                }}.schedule(1000);
 
+            // ... and set it each time size changes (most often orientation
+            // change)
+            Window.addResizeHandler(new ResizeHandler() {
+                private Timer deferredResizeHandler;
+
+                @Override
+                public void onResize(ResizeEvent event) {
+                    if (deferredResizeHandler != null) {
+                        deferredResizeHandler.cancel();
+                    }
+                    // Defer to get correct orientation, 1000 ms seems to be just
+                    // enough (tested on ipad mini)
+                    deferredResizeHandler = new Timer() {
+                        @Override
+                        public void run() {
+                            if (!isVirtualKeyboardOn()) {
+                                fixHtmlHeightToWindowInnerHeight();
+                            } else {
+                                deferredResizeHandler.schedule(1000);
+                            }
+                        }
+                    };
+
+                    deferredResizeHandler.schedule(1000);
+                }
+            });
+
+            hookCustomAlerts();
+
+        }
+
+    }
+
+    private void initSizeIfNeeded() {
+        if (bootWidth == null) {
             if (isLandscape()) {
                 bootWidth = getWindowInnerHeight();
                 bootHeight = getWindowInnerWidth();
@@ -36,31 +81,8 @@ public class Ios7HackLoader implements EntryPoint {
                 bootHeight = getWindowInnerHeight();
                 bootWidth = getWindowInnerWidth();
             }
-
-            /* "Somewhat" working viewport settings */
-            addHeightToViewPort();
-
-            // ... and set it each time size changes (most often orientation
-            // change)
-            Window.addResizeHandler(new ResizeHandler() {
-                @Override
-                public void onResize(ResizeEvent event) {
-                    // Defer to get correct orientation, 800 ms seems to be just
-                    // enough (tested on ipad mini)
-                    new Timer() {
-                        @Override
-                        public void run() {
-                            if (!isVirtualKeyboardOn()) {
-                                fixHtmlHeightToWindowInnerHeight();
-                            }
-                        }
-                    }.schedule(800);
-                }
-            });
-
-            hookCustomAlerts();
+//            log("BS" + bootWidth + " x " + bootHeight);
         }
-
     }
 
     private boolean isLandscape() {
@@ -88,6 +110,9 @@ public class Ios7HackLoader implements EntryPoint {
         int referenceHeight = isLandscape() ? bootWidth : bootHeight;
         int differeceToStart = Math.abs(referenceHeight
                 - getWindowInnerHeight());
+//        log("IVKBON il" + isLandscape() + " wh" + getWindowInnerHeight()
+//                + " ww" + getWindowInnerWidth() + " bw" + bootWidth + " bh"
+//                + bootHeight);
         // Allow small changes (~ status bar & e.g. hotspot notification)
         if (differeceToStart > 100) {
             return true;
@@ -129,7 +154,6 @@ public class Ios7HackLoader implements EntryPoint {
                 attribute = updateViewPortHeight(attribute, viewPortHeight);
             }
             item.setContent(attribute);
-            ;
         }
     }
 

@@ -5,7 +5,7 @@
 	<groupId>org.vaadin.addon</groupId>
 	<artifactId>ios7hotfixes</artifactId>
 	<packaging>jar</packaging>
-	<version>3.0.0</version>
+	<version>4-SNAPSHOT</version>
 	<name>iOS 7 Hotfixes</name>
 
 	<profiles>
