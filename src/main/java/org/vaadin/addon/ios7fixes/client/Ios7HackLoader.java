@@ -66,8 +66,9 @@ public class Ios7HackLoader implements EntryPoint {
                 }
             });
 
-            hookCustomAlerts();
-
+            if(hasBrokenAlert()) {
+                hookCustomAlerts();
+            }
         }
 
     }
@@ -105,6 +106,16 @@ public class Ios7HackLoader implements EntryPoint {
         return ua != null && ua.contains("OS 7_0") && ua.contains("iP")
                 && !ua.contains("Safari");
     }
+    
+    protected boolean hasBrokenAlert() {
+        if(isiOS7HomeScreenApp()) {
+            String ua = Navigator.getUserAgent();
+            if(ua.contains("7_0 ") || ua.contains("7_0_1 ") || ua.contains("7_0_2 ")) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private boolean isVirtualKeyboardOn() {
         int referenceHeight = isLandscape() ? bootWidth : bootHeight;
@@ -132,8 +143,8 @@ public class Ios7HackLoader implements EntryPoint {
 
     /**
      * Modifies viewport tag to include both width=device-width AND
-     * height=device-height. The latter is not generally know or used, but seems
-     * to prevent ios from changen screen size when virtual keyboard pops on.
+     * height=device-height. The latter is not generally known or used, but seems
+     * to prevent ios from changing screen size when virtual keyboard pops on.
      * This is how it works in Safari, Android, mobile IE and in previous
      * version of iOS home screen web apps.
      * <p>
