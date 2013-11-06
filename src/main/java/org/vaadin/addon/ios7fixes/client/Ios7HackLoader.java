@@ -1,10 +1,14 @@
 package org.vaadin.addon.ios7fixes.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.MetaElement;
 import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.dom.client.StyleElement;
+import com.google.gwt.dom.client.StyleInjector;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Timer;
@@ -27,8 +31,9 @@ public class Ios7HackLoader implements EntryPoint {
          * 
          * At least currently this tool only fixes stuff for thos apps.
          */
-        if (isiOS7HomeScreenApp()) {
-            // Defer setting "boot values", else may be something weird in iphone
+        if (needsViewPortFix()) {
+            // Defer setting "boot values", else may be something weird in
+            // iphone
             // when app is started in landscape mode
             new Timer() {
                 @Override
@@ -36,8 +41,9 @@ public class Ios7HackLoader implements EntryPoint {
                     initSizeIfNeeded();
                     /* "Somewhat" working viewport settings */
                     addHeightToViewPort();
-                    
-                }}.schedule(1000);
+
+                }
+            }.schedule(1000);
 
             // ... and set it each time size changes (most often orientation
             // change)
@@ -49,7 +55,8 @@ public class Ios7HackLoader implements EntryPoint {
                     if (deferredResizeHandler != null) {
                         deferredResizeHandler.cancel();
                     }
-                    // Defer to get correct orientation, 1000 ms seems to be just
+                    // Defer to get correct orientation, 1000 ms seems to be
+                    // just
                     // enough (tested on ipad mini)
                     deferredResizeHandler = new Timer() {
                         @Override
@@ -66,11 +73,39 @@ public class Ios7HackLoader implements EntryPoint {
                 }
             });
 
-            if(hasBrokenAlert()) {
-                hookCustomAlerts();
-            }
+        }
+        if (hasBrokenAlert()) {
+            hookCustomAlerts();
         }
 
+        if (isIos7IPadWithBrokenHorizontalHeight()) {
+            String css = "@media (orientation:landscape) { "
+                    + bodySelectorForBrokenHorizontalIpad()
+                    + " {position:fixed;bottom:0;width:100%;"
+                    + "height: 672px !important;}" + "}";
+            StyleInjector.inject(css);
+            StyleInjector.flush();
+        }
+
+    }
+
+    /**
+     * Note that only Vaadin apps handled here as might cause odd issues with
+     * generic "body" selector
+     * 
+     * @return
+     */
+    protected String bodySelectorForBrokenHorizontalIpad() {
+        return ".v-generated-body";
+    }
+
+    private boolean needsViewPortFix() {
+        return isiOS7HomeScreenApp();
+    }
+
+    private boolean isIos7IPadWithBrokenHorizontalHeight() {
+        String ua = Navigator.getUserAgent();
+        return ua != null && ua.contains("OS 7_0") && ua.contains("iPad");
     }
 
     private void initSizeIfNeeded() {
@@ -82,7 +117,7 @@ public class Ios7HackLoader implements EntryPoint {
                 bootHeight = getWindowInnerHeight();
                 bootWidth = getWindowInnerWidth();
             }
-//            log("BS" + bootWidth + " x " + bootHeight);
+            // log("BS" + bootWidth + " x " + bootHeight);
         }
     }
 
@@ -106,11 +141,12 @@ public class Ios7HackLoader implements EntryPoint {
         return ua != null && ua.contains("OS 7_0") && ua.contains("iP")
                 && !ua.contains("Safari");
     }
-    
+
     protected boolean hasBrokenAlert() {
-        if(isiOS7HomeScreenApp()) {
+        if (isiOS7HomeScreenApp()) {
             String ua = Navigator.getUserAgent();
-            if(ua.contains("7_0 ") || ua.contains("7_0_1 ") || ua.contains("7_0_2 ")) {
+            if (ua.contains("7_0 ") || ua.contains("7_0_1 ")
+                    || ua.contains("7_0_2 ")) {
                 return true;
             }
         }
@@ -121,9 +157,9 @@ public class Ios7HackLoader implements EntryPoint {
         int referenceHeight = isLandscape() ? bootWidth : bootHeight;
         int differeceToStart = Math.abs(referenceHeight
                 - getWindowInnerHeight());
-//        log("IVKBON il" + isLandscape() + " wh" + getWindowInnerHeight()
-//                + " ww" + getWindowInnerWidth() + " bw" + bootWidth + " bh"
-//                + bootHeight);
+        // log("IVKBON il" + isLandscape() + " wh" + getWindowInnerHeight()
+        // + " ww" + getWindowInnerWidth() + " bw" + bootWidth + " bh"
+        // + bootHeight);
         // Allow small changes (~ status bar & e.g. hotspot notification)
         if (differeceToStart > 100) {
             return true;
@@ -143,9 +179,9 @@ public class Ios7HackLoader implements EntryPoint {
 
     /**
      * Modifies viewport tag to include both width=device-width AND
-     * height=device-height. The latter is not generally known or used, but seems
-     * to prevent ios from changing screen size when virtual keyboard pops on.
-     * This is how it works in Safari, Android, mobile IE and in previous
+     * height=device-height. The latter is not generally known or used, but
+     * seems to prevent ios from changing screen size when virtual keyboard pops
+     * on. This is how it works in Safari, Android, mobile IE and in previous
      * version of iOS home screen web apps.
      * <p>
      * Instead of "device-height" we use pixel height reported by
