@@ -1,13 +1,10 @@
 package org.vaadin.addon.ios7fixes.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.MetaElement;
 import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.dom.client.StyleElement;
 import com.google.gwt.dom.client.StyleInjector;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
@@ -84,7 +81,6 @@ public class Ios7HackLoader implements EntryPoint {
                     + " {position:fixed;bottom:0;width:100%;"
                     + "height: 672px !important;}" + "}";
             StyleInjector.inject(css);
-            StyleInjector.flush();
         }
 
     }
@@ -105,7 +101,8 @@ public class Ios7HackLoader implements EntryPoint {
 
     private boolean isIos7IPadWithBrokenHorizontalHeight() {
         String ua = Navigator.getUserAgent();
-        return ua != null && ua.contains("OS 7_0") && ua.contains("iPad");
+        return ua != null && ua.contains("OS 7_0") && ua.contains("iPad")
+                && ua.contains("Safari");
     }
 
     private void initSizeIfNeeded() {
