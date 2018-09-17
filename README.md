@@ -1,3 +1,6 @@
+[![Published on Vaadin  Directory](https://img.shields.io/badge/Vaadin%20Directory-published-00b4f0.svg)](https://vaadin.com/directory/component/ios-7-hotfixes)
+[![Stars on vaadin.com/directory](https://img.shields.io/vaadin-directory/star/ios-7-hotfixes.svg)](https://vaadin.com/directory/component/ios-7-hotfixes)
+
 # iOS7 Home Screen Web App Hot Fixes
 
 Releases can be found from Vaadin Directory:
